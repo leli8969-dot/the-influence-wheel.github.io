@@ -9,4 +9,4 @@
 // ════════════════════════════════════════════════════════
 
 const SUPABASE_URL      = 'https://insemsnfyypawjafxlkt.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imluc2Vtc25meXlwYXdqYWZ4bGt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NzgxMTMsImV4cCI6MjA5NTQ1NDExM30.BphQIEWgRe70pfoXM5DWLS3TQyrNCIljX5mhKx6SLRU';
