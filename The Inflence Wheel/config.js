@@ -8,5 +8,6 @@
 //    Lass die Felder leer – die App läuft im Demo-Modus.
 // ════════════════════════════════════════════════════════
 
-const SUPABASE_URL      = '';   // z.B. 'https://xyz.supabase.co'
-const SUPABASE_ANON_KEY = '';   // dein anon/public key
+const SUPABASE_URL      = 'https://insemsnfyypawjafxlkt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+
