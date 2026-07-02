@@ -1,84 +1,72 @@
 /* ════════════════════════════════════════════════════════
-   db.js – Datenbank-Abstraktion
-   Unterstützt:
-     • Supabase (Echtzeit, Level 3)
-     • localStorage Demo-Modus (Level 2 – kein Server)
+   db.js – Database abstraction
+   Supports Supabase (live) + localStorage (demo)
+   
+   New: lobby state, timer_end_at, participant tracking
    ════════════════════════════════════════════════════════ */
 
 class InfluenceDB {
   constructor() {
-    this.sb    = null;
-    this.isLive = false;
-    this._chans = [];
-
-    const ok =
-      typeof SUPABASE_URL !== 'undefined' &&
-      SUPABASE_URL &&
-      SUPABASE_URL.startsWith('https://');
-
+    this.sb = null; this.isLive = false; this._chans = [];
+    const ok = typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL?.startsWith('https://');
     if (ok) {
       try {
         this.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         this.isLive = true;
-        console.log('✅ Supabase verbunden – Live-Modus');
-      } catch (e) {
-        console.warn('⚠️ Supabase-Fehler, Demo-Modus aktiv:', e);
-      }
+        console.log('✅ Supabase connected – Live mode');
+      } catch(e) { console.warn('⚠️ Supabase error, demo mode:', e); }
     } else {
-      console.log('⚡ Demo-Modus (localStorage)');
+      console.log('⚡ Demo mode (localStorage)');
     }
   }
 
-  // ── ID generieren ────────────────────────────────────
   _id() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    return Array.from({ length: 6 }, () =>
-      chars[Math.floor(Math.random() * chars.length)]
-    ).join('');
+    const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from({length:6}, () => c[Math.floor(Math.random()*c.length)]).join('');
   }
 
-  // ── Poll erstellen ───────────────────────────────────
+  // ── Session ID for participant tracking ──────────────
+  getSessionId() {
+    let sid = sessionStorage.getItem('iw_session');
+    if (!sid) {
+      sid = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+      sessionStorage.setItem('iw_session', sid);
+    }
+    return sid;
+  }
+
+  // ── Create poll (starts in 'lobby' state) ────────────
   async createPoll(name, question, options, choiceMode) {
     const poll = {
-      id:          this._id(),
-      name,
-      question,
-      options,          // string[]
-      choice_mode:  choiceMode,  // 'single' | 'multiple'
-      status:      'voting',      // 'voting' | 'closed' | 'done'
-      winner:       null,
-      created_at:   new Date().toISOString(),
+      id: this._id(), name, question, options,
+      choice_mode: choiceMode,
+      status: 'lobby',         // ← lobby first, not voting
+      timer_end_at: null,      // ← set when host starts voting
+      winner: null,
+      created_at: new Date().toISOString(),
     };
-
     if (this.isLive) {
-      const { data, error } = await this.sb
-        .from('polls').insert(poll).select().single();
+      const { data, error } = await this.sb.from('polls').insert(poll).select().single();
       if (error) throw error;
       return data;
     }
-
     localStorage.setItem(`iw_poll_${poll.id}`, JSON.stringify(poll));
     return poll;
   }
 
-  // ── Poll laden ───────────────────────────────────────
   async getPoll(id) {
     if (this.isLive) {
-      const { data } = await this.sb
-        .from('polls').select('*').eq('id', id).single();
+      const { data } = await this.sb.from('polls').select('*').eq('id', id).single();
       return data;
     }
     const raw = localStorage.getItem(`iw_poll_${id}`);
     return raw ? JSON.parse(raw) : null;
   }
 
-  // ── Poll aktualisieren ───────────────────────────────
   async updatePoll(id, patch) {
     if (this.isLive) {
-      const { error } = await this.sb
-        .from('polls').update(patch).eq('id', id);
-      if (error) throw error;
-      return;
+      const { error } = await this.sb.from('polls').update(patch).eq('id', id);
+      if (error) throw error; return;
     }
     const poll = await this.getPoll(id);
     if (poll) {
@@ -87,43 +75,40 @@ class InfluenceDB {
     }
   }
 
-  // ── Stimme abgeben ───────────────────────────────────
+  // ── Start voting (sets timer_end_at for all clients) ─
+  async startVoting(pollId, durationMs = 120000) {
+    const timer_end_at = Date.now() + durationMs;
+    await this.updatePoll(pollId, { status: 'voting', timer_end_at });
+    return timer_end_at;
+  }
+
+  // ── Votes ────────────────────────────────────────────
   async submitVote(pollId, optionIndices) {
-    // optionIndices: number[] (für single choice immer length=1)
     if (this.isLive) {
-      const rows = optionIndices.map(i => ({
-        poll_id: pollId, option_index: i
-      }));
+      const rows = optionIndices.map(i => ({ poll_id: pollId, option_index: i }));
       const { error } = await this.sb.from('votes').insert(rows);
-      if (error) throw error;
-      return;
+      if (error) throw error; return;
     }
     const key  = `iw_votes_${pollId}`;
     const prev = JSON.parse(localStorage.getItem(key) || '[]');
-    optionIndices.forEach(i =>
-      prev.push({ poll_id: pollId, option_index: i, id: Date.now() + Math.random() })
-    );
+    optionIndices.forEach(i => prev.push({ poll_id: pollId, option_index: i, id: Date.now() + Math.random() }));
     localStorage.setItem(key, JSON.stringify(prev));
   }
 
-  // ── Stimmen laden ────────────────────────────────────
   async getVotes(pollId) {
     if (this.isLive) {
-      const { data } = await this.sb
-        .from('votes').select('option_index').eq('poll_id', pollId);
+      const { data } = await this.sb.from('votes').select('option_index').eq('poll_id', pollId);
       return data || [];
     }
     return JSON.parse(localStorage.getItem(`iw_votes_${pollId}`) || '[]');
   }
 
-  // ── Stimme lokal hinzufügen (No-DB Level 2) ──────────
   addVoteLocal(pollId, optionIndex, nonce) {
     const nonceKey = `iw_nonces_${pollId}`;
-    const nonces = JSON.parse(localStorage.getItem(nonceKey) || '[]');
-    if (nonces.includes(nonce)) return false; // Duplikat
+    const nonces   = JSON.parse(localStorage.getItem(nonceKey) || '[]');
+    if (nonces.includes(nonce)) return false;
     nonces.push(nonce);
     localStorage.setItem(nonceKey, JSON.stringify(nonces));
-
     const key  = `iw_votes_${pollId}`;
     const prev = JSON.parse(localStorage.getItem(key) || '[]');
     prev.push({ poll_id: pollId, option_index: optionIndex, id: nonce });
@@ -131,17 +116,41 @@ class InfluenceDB {
     return true;
   }
 
-  // ── Echtzeit-Subscription: Stimmen ──────────────────
+  // ── Participant tracking ──────────────────────────────
+  async participantJoin(pollId) {
+    const sessionId = this.getSessionId();
+    if (this.isLive) {
+      await this.sb.from('participants').upsert(
+        { poll_id: pollId, session_id: sessionId },
+        { onConflict: 'poll_id,session_id' }
+      ).catch(() => {});
+    } else {
+      // Demo: track locally (simulated)
+      const key  = `iw_participants_${pollId}`;
+      const list = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!list.includes(sessionId)) {
+        list.push(sessionId);
+        localStorage.setItem(key, JSON.stringify(list));
+      }
+    }
+  }
+
+  async getParticipantCount(pollId) {
+    if (this.isLive) {
+      const { count } = await this.sb.from('participants')
+        .select('*', { count: 'exact', head: true }).eq('poll_id', pollId);
+      return count || 0;
+    }
+    const key = `iw_participants_${pollId}`;
+    return JSON.parse(localStorage.getItem(key) || '[]').length;
+  }
+
+  // ── Subscriptions ────────────────────────────────────
   subscribeVotes(pollId, cb) {
     if (this.isLive) {
       const ch = this.sb.channel(`votes:${pollId}`)
-        .on('postgres_changes', {
-          event: 'INSERT', schema: 'public',
-          table: 'votes', filter: `poll_id=eq.${pollId}`
-        }, async () => {
-          const votes = await this.getVotes(pollId);
-          cb(votes);
-        })
+        .on('postgres_changes', { event:'INSERT', schema:'public', table:'votes', filter:`poll_id=eq.${pollId}` },
+          async () => cb(await this.getVotes(pollId)))
         .subscribe();
       this._chans.push(ch);
       return { unsubscribe: () => this.sb.removeChannel(ch) };
@@ -150,23 +159,35 @@ class InfluenceDB {
     return { unsubscribe: () => clearInterval(t) };
   }
 
-  // ── Echtzeit-Subscription: Poll-Status ──────────────
   subscribePoll(pollId, cb) {
     if (this.isLive) {
       const ch = this.sb.channel(`poll:${pollId}`)
-        .on('postgres_changes', {
-          event: 'UPDATE', schema: 'public',
-          table: 'polls', filter: `id=eq.${pollId}`
-        }, ({ new: p }) => cb(p))
+        .on('postgres_changes', { event:'UPDATE', schema:'public', table:'polls', filter:`id=eq.${pollId}` },
+          ({ new: p }) => cb(p))
         .subscribe();
       this._chans.push(ch);
       return { unsubscribe: () => this.sb.removeChannel(ch) };
     }
-    let lastStatus = null;
+    let last = null;
     const t = setInterval(async () => {
       const p = await this.getPoll(pollId);
-      if (p && p.status !== lastStatus) { lastStatus = p.status; cb(p); }
-    }, 1500);
+      const sig = p ? `${p.status}${p.winner}${p.timer_end_at}` : null;
+      if (sig !== last) { last = sig; if (p) cb(p); }
+    }, 1200);
+    return { unsubscribe: () => clearInterval(t) };
+  }
+
+  subscribeParticipants(pollId, cb) {
+    if (this.isLive) {
+      const ch = this.sb.channel(`participants:${pollId}`)
+        .on('postgres_changes', { event:'INSERT', schema:'public', table:'participants', filter:`poll_id=eq.${pollId}` },
+          async () => cb(await this.getParticipantCount(pollId)))
+        .subscribe();
+      this._chans.push(ch);
+      return { unsubscribe: () => this.sb.removeChannel(ch) };
+    }
+    // Demo: poll participant count
+    const t = setInterval(async () => cb(await this.getParticipantCount(pollId)), 2000);
     return { unsubscribe: () => clearInterval(t) };
   }
 
