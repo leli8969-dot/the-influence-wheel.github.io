@@ -1,220 +1,208 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>The Influence Wheel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app">
 
-  <!-- ═══ TOP BAR ═══ -->
   <header class="topbar">
     <div class="logo-wrap" onclick="goHome()">
-      <span class="logo-text">THE INFLUENCE</span>
-      <img src="assets/WHEEL.png" class="header-wheel-img" id="header-wheel" alt="Wheel">
+      <span class="logo-text">The Influence</span>
+      <img src="assets/WHEEL.png" class="header-wheel-img" alt="Wheel">
     </div>
-    <!-- Demo-Badge entfernt -->
   </header>
 
-  <!-- ═══ MAIN ═══ -->
   <main id="content">
 
-    <!-- ── HOME: Text LINKS, Logo RECHTS ── -->
+    <!-- HOME -->
     <div id="view-home" class="view">
       <div class="home-layout">
-
-        <!-- TEXT – linke Spalte -->
         <div class="home-text-col" id="home-bubbles">
-          <div class="bubble">The Influence Wheel makes decisions fun.</div>
-          <div class="bubble">Maybe you cannot decide where to go on your next vacation, what food to order, which movie to watch, or if going back to your ex is a good idea.</div>
-          <div class="bubble">Create a question, add your options, invite your friends to vote and let the wheel choose the result.</div>
-          <div class="bubble bubble-alt">Sometimes the best decisions are the ones you don't fully control.</div>
+          <div class="home-text-row row-large">The Influence Wheel makes decisions fun.</div>
+          <div class="home-text-row">Maybe you cannot decide where to go on your next vacation, what food to order, which movie to watch, or if going back to your ex is a good idea.</div>
+          <div class="home-text-row">Create a question, add your options, invite your friends to vote and let the wheel choose the result.</div>
+          <div class="home-text-row row-italic">Sometimes the best decisions are the ones you don't fully control.</div>
         </div>
-
-        <!-- LOGO – rechte Spalte: animiertes Canvas-Wheel -->
         <div class="home-logo-col" id="home-logo-col">
           <canvas id="landing-wheel-canvas" width="440" height="440"></canvas>
         </div>
-
       </div>
     </div>
 
-    <!-- ── MODE SELECT ── -->
+    <!-- MODE SELECT -->
     <div id="view-mode" class="view hidden">
       <div class="center-view">
-        <h2 class="big-label">HOW MANY USERS SHOULD VOTE?</h2>
+        <p class="page-heading">How many users should vote?</p>
         <div class="mode-cards">
-
-          <!-- ALONE – alone_icon.svg -->
           <button class="mode-card" id="card-alone" onclick="selectMode('alone')">
-            <span class="mode-card-title">ALONE</span>
-            <svg class="mode-icon-alone" viewBox="0 0 162 333" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="mode-icon-alone" viewBox="0 0 162 333" fill="none">
               <path d="M85.7274 12.5781C77.7481 12.5781 56.8823 15.0674 47.5517 21.4821C35.2562 29.9351 30.5201 52.6159 27.4861 66.4712C23.6684 83.9052 34.2861 98.5822 45.5049 111.016C53.2041 119.548 89.7709 116.115 111.692 112.463C121.833 110.773 126.752 94.7522 130.229 78.8365C134.576 58.943 129.728 43.8856 125.328 40.6645C114.443 32.3599 105.62 25.3918 100.685 22.4691C98.2141 21.1138 95.8117 20.0181 86.8467 16.0018" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
               <path d="M74.0419 117.693C74.0419 118.233 74.0419 149.913 73.5469 200.414C72.0617 225.357 69.682 239.551 67.6222 253.885C66.9219 260.045 66.9219 263.947 66.9219 267.967" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
               <path d="M12.9844 184.879C13.1644 184.879 45.2547 184.782 96.2065 183.946C115.161 183.206 120.102 181.825 124.037 181C127.971 180.175 130.749 179.948 133.611 179.715" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
               <path d="M12.5781 320.341C15.5485 317.387 31.2633 305.53 43.9877 295.801C56.2951 286.391 63.6221 279.73 72.3616 274.422C84.5853 266.998 99.8544 280.706 114.032 293.257C126.949 305.689 133.503 310.656 138.451 313.828C140.909 315.398 143.262 316.888 149.006 319.476" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
             </svg>
+            <span class="mode-card-title">Alone</span>
             <span class="mode-card-sub">Direct to Wheel</span>
           </button>
-
-          <!-- GROUP – group_icon.svg (nur relevante Paths für 3 Personen) -->
           <button class="mode-card" id="card-group" onclick="selectMode('group')">
-            <span class="mode-card-title">GROUP</span>
-            <svg class="mode-icon-group" viewBox="0 0 608 348" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M293.183 34.4434C293.023 34.4434 285.484 34.4434 273.207 35.0126C258.462 35.6962 249.514 62.5559 244.822 75.2496C241.794 83.4407 245.003 91.2956 247.031 95.8209C253.729 110.764 278.275 127.015 298.177 134.698C309.088 138.91 319.284 134.535 324.878 131.683C335.712 126.159 342.108 113.719 344.564 99.6714C347.551 82.5919 343.286 66.9927 340.335 59.5278C336.461 49.7266 325.384 44.9422 316.279 41.4079C305.666 38.2369 298.096 36.5455 293.429 35.7958C291.096 35.5062 288.832 35.4008 280.629 34.9106" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M304.128 141.18C304.128 141.451 304.128 141.723 304.128 158.947C304.128 176.171 304.128 210.341 303.845 236.416C303.563 262.492 302.998 279.44 302.416 296.9" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M12.5801 172.564C16.573 172.835 31.8349 179.166 61.4414 197.651C91.3834 216.345 105.881 218.596 115.876 219.137C137.356 220.3 163.478 186.68 176.557 177.322C185.04 171.253 191.47 164.828 196.579 161.677C201.12 158.876 206.299 158.838 212.464 160.846C231.117 166.92 241.153 178.763 258.654 189.106C275.06 198.802 291.866 204.098 301.851 205.786C324.6 209.631 348.507 179.276 372.02 167.658C378.685 164.365 384.04 161.905 388.948 160.374C400.216 156.86 413.1 170.134 426.987 178.507C457.952 197.177 496.932 204.578 501.58 205.786L595.08 172.564" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M123.715 207.291C123.515 207.291 122.495 213.557 120.572 225.107C118.504 234.504 116.225 244.667 114.292 254.866C113.543 259.139 113.262 261.579 111.658 266.608" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M504.58 178.443V260.862" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M505.58 259.443C508.913 260.005 520.023 266.173 529.912 275.523C536.983 282.108 544.941 289.861 551.919 296.702C554.997 299.574 557.135 301.227 559.337 302.931" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M504.234 259.443C502.019 261.322 491.484 271.402 481.367 281.32C478.911 283.928 476.047 287.042 473.825 289.701C471.604 292.36 470.112 294.47 466.58 299.48" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M299.004 306.043C294.527 307.46 278.257 315.853 267.741 323.016C265.529 324.511 263.182 326.043 260.931 327.604C258.68 329.166 256.596 330.711 253.096 333.295" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M304.16 298.82C307.075 299.198 320.444 301.06 335.603 306.636C349.753 311.653 360.99 316.275 365.981 319.509C368.456 321.108 370.815 322.622 373.245 324.181" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M110.341 267.705C106.734 268.285 94.5324 270.915 78.1988 279.136C69.0569 285.192 62.4687 290.456 58.7314 294.284C56.882 296.23 55.1283 298.183 53.2363 301.548" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M113.465 269.363C114.251 272.48 117.951 284.056 121.38 306.617C122.234 312.51 123.173 317.247 124.236 321.517C125.298 325.788 126.456 329.448 128.292 334.893" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M122.623 202.194C122.623 202.013 122.623 190.68 121.935 172.281C121.247 165.123 119.871 162.386 118.563 159.546C117.255 156.705 116.056 153.844 112.543 146.99" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M113.417 59.7961C108.652 59.2626 93.7543 61.3338 85.5945 67.6091C76.6356 74.4991 75.6478 89.3488 74.3319 99.6302C72.7535 111.963 82.8858 124.052 91.233 133.221C95.9567 138.41 102.358 140.499 110.294 141.572C124.182 143.448 135.791 140.619 140.894 136.909C150.54 129.897 155.554 117.907 158.639 107.047C161.002 98.7273 160.322 88.7907 159.174 80.8117C150.026 72.1815 140.321 67.7775 133.676 64.2502C130.008 62.3394 125.739 60.1832 116.982 56.0137" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M504.238 192.215C504.238 191.853 504.238 174.31 504.071 146.698C503.904 136.442 503.571 133.811 503.211 131.061C502.852 128.311 502.478 125.521 502.092 119.867" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
-<path d="M504.812 12.9336C500.742 12.9336 489.283 13.7623 481.751 16.7935C475.981 19.1161 470.429 32.7702 465.907 44.7806C460.96 57.92 465.006 71.1379 469.98 81.89C474.058 90.7061 478.938 94.2025 487.411 98.8628C493.767 102.359 503.141 102.922 515.757 102.905C525.902 102.893 534.492 94.7478 541.682 88.016C552.173 78.1924 555.232 68.2888 557.463 60.9175C559.908 52.8431 556.63 41.5799 550.767 33.3854C541.866 20.9422 529.856 16.7445 523.252 13.8378C521.629 13.2485 520.406 12.9649 517.368 12.8031C514.33 12.6414 509.516 12.6103 504.556 12.5781" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+            <svg class="mode-icon-group" viewBox="0 0 608 348" fill="none">
+              <path d="M293.183 34.4434C293.023 34.4434 285.484 34.4434 273.207 35.0126C258.462 35.6962 249.514 62.5559 244.822 75.2496C241.794 83.4407 245.003 91.2956 247.031 95.8209C253.729 110.764 278.275 127.015 298.177 134.698C309.088 138.91 319.284 134.535 324.878 131.683C335.712 126.159 342.108 113.719 344.564 99.6714C347.551 82.5919 343.286 66.9927 340.335 59.5278C336.461 49.7266 325.384 44.9422 316.279 41.4079C305.666 38.2369 298.096 36.5455 293.429 35.7958C291.096 35.5062 288.832 35.4008 280.629 34.9106" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M304.128 141.18C304.128 141.451 304.128 141.723 304.128 158.947C304.128 176.171 304.128 210.341 303.845 236.416C303.563 262.492 302.998 279.44 302.416 296.9" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M12.5801 172.564C16.573 172.835 31.8349 179.166 61.4414 197.651C91.3834 216.345 105.881 218.596 115.876 219.137C137.356 220.3 163.478 186.68 176.557 177.322C185.04 171.253 191.47 164.828 196.579 161.677C201.12 158.876 206.299 158.838 212.464 160.846C231.117 166.92 241.153 178.763 258.654 189.106C275.06 198.802 291.866 204.098 301.851 205.786C324.6 209.631 348.507 179.276 372.02 167.658C378.685 164.365 384.04 161.905 388.948 160.374C400.216 156.86 413.1 170.134 426.987 178.507C457.952 197.177 496.932 204.578 501.58 205.786L595.08 172.564" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M123.715 207.291C123.515 207.291 122.495 213.557 120.572 225.107C118.504 234.504 116.225 244.667 114.292 254.866C113.543 259.139 113.262 261.579 111.658 266.608" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M504.58 178.443V260.862" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M505.58 259.443C508.913 260.005 520.023 266.173 529.912 275.523C536.983 282.108 544.941 289.861 551.919 296.702C554.997 299.574 557.135 301.227 559.337 302.931" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M504.234 259.443C502.019 261.322 491.484 271.402 481.367 281.32C478.911 283.928 476.047 287.042 473.825 289.701C471.604 292.36 470.112 294.47 466.58 299.48" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M299.004 306.043C294.527 307.46 278.257 315.853 267.741 323.016C265.529 324.511 263.182 326.043 260.931 327.604C258.68 329.166 256.596 330.711 253.096 333.295" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M304.16 298.82C307.075 299.198 320.444 301.06 335.603 306.636C349.753 311.653 360.99 316.275 365.981 319.509C368.456 321.108 370.815 322.622 373.245 324.181" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M110.341 267.705C106.734 268.285 94.5324 270.915 78.1988 279.136C69.0569 285.192 62.4687 290.456 58.7314 294.284C56.882 296.23 55.1283 298.183 53.2363 301.548" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M113.465 269.363C114.251 272.48 117.951 284.056 121.38 306.617C122.234 312.51 123.173 317.247 124.236 321.517C125.298 325.788 126.456 329.448 128.292 334.893" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M122.623 202.194C122.623 202.013 122.623 190.68 121.935 172.281C121.247 165.123 119.871 162.386 118.563 159.546C117.255 156.705 116.056 153.844 112.543 146.99" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M113.417 59.7961C108.652 59.2626 93.7543 61.3338 85.5945 67.6091C76.6356 74.4991 75.6478 89.3488 74.3319 99.6302C72.7535 111.963 82.8858 124.052 91.233 133.221C95.9567 138.41 102.358 140.499 110.294 141.572C124.182 143.448 135.791 140.619 140.894 136.909C150.54 129.897 155.554 117.907 158.639 107.047C161.002 98.7273 160.322 88.7907 159.174 80.8117C150.026 72.1815 140.321 67.7775 133.676 64.2502C130.008 62.3394 125.739 60.1832 116.982 56.0137" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M504.238 192.215C504.238 191.853 504.238 174.31 504.071 146.698C503.904 136.442 503.571 133.811 503.211 131.061C502.852 128.311 502.478 125.521 502.092 119.867" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
+              <path d="M504.812 12.9336C500.742 12.9336 489.283 13.7623 481.751 16.7935C475.981 19.1161 470.429 32.7702 465.907 44.7806C460.96 57.92 465.006 71.1379 469.98 81.89C474.058 90.7061 478.938 94.2025 487.411 98.8628C493.767 102.359 503.141 102.922 515.757 102.905C525.902 102.893 534.492 94.7478 541.682 88.016C552.173 78.1924 555.232 68.2888 557.463 60.9175C559.908 52.8431 556.63 41.5799 550.767 33.3854C541.866 20.9422 529.856 16.7445 523.252 13.8378C521.629 13.2485 520.406 12.9649 517.368 12.8031C514.33 12.6414 509.516 12.6103 504.556 12.5781" stroke="currentColor" stroke-width="25.1576" stroke-linecap="round"/>
             </svg>
+            <span class="mode-card-title">Group</span>
             <span class="mode-card-sub">Share link &amp; vote</span>
           </button>
-
         </div>
       </div>
     </div>
 
-    <!-- ── SETUP ── -->
+    <!-- SETUP -->
     <div id="view-setup" class="view hidden">
-      <div class="setup-layout">
-        <div class="lbox" id="setup-name-box">
-          <span class="lbox-tab">NAME</span>
-          <input class="lbox-input" id="setup-name" type="text"
-            placeholder="e.g. Iconic Girlsnight" maxlength="40" autocomplete="off">
+      <div class="page-layout">
+        <div id="setup-name-box">
+          <label class="field-label first">Session Name</label>
+          <input class="field-input" id="setup-name" type="text" placeholder="e.g. Iconic Girls Night  " maxlength="40" autocomplete="off">
         </div>
-        <div class="lbox">
-          <span class="lbox-tab">QUESTION</span>
-          <input class="lbox-input" id="setup-question" type="text"
-            placeholder="e.g. Should I spend my money on the holiday or new clothes?" maxlength="120" autocomplete="off">
-        </div>
-        <div class="lbox">
-          <span class="lbox-tab">VOTING OPTIONS</span>
-          <div id="setup-opts-list"></div>
-          <button class="btn-more" id="btn-more-opts">+ MORE</button>
-        </div>
+        <label class="field-label">Question</label>
+        <input class="field-input" id="setup-question" type="text" placeholder="e.g. What's to eat? " maxlength="120" autocomplete="off">
+        <label class="field-label">Voting Options</label>
+        <div id="setup-opts-list"></div>
+        <button class="btn-more" id="btn-more-opts">+ More</button>
         <div class="choice-toggle" id="choice-toggle-wrap">
-          <button class="choice-btn" id="cbtn-single" onclick="setChoiceMode('single')">SINGLE CHOICE</button>
-          <button class="choice-btn" id="cbtn-multi"  onclick="setChoiceMode('multiple')">MULTIPLE CHOICE</button>
+          <button class="choice-btn" id="cbtn-single" onclick="setChoiceMode('single')">Single Choice</button>
+          <button class="choice-btn" id="cbtn-multi"  onclick="setChoiceMode('multiple')">Multiple Choice</button>
         </div>
         <p class="error-msg" id="setup-error"></p>
       </div>
     </div>
 
-    <!-- ── SHARE ── -->
+    <!-- SHARE (HOST: share link + participant count) -->
     <div id="view-share" class="view hidden">
       <div class="center-view">
         <div class="share-card">
-          <p class="share-session-name" id="share-name-display"></p>
-          <p class="share-vote-id-label">VOTE ID</p>
-          <p class="share-code-big" id="share-code-display"></p>
+          <p class="share-name" id="share-name-display"></p>
+          <p class="share-id-label">Vote ID</p>
+          <p class="share-code" id="share-code-display"></p>
         </div>
-        <div id="share-qr-wrap" class="share-qr-box" style="display:none">
+        <div id="share-qr-wrap" style="display:none">
           <canvas id="share-qr-canvas"></canvas>
         </div>
-        <button class="action-btn" id="btn-copy-share">+ COPY LINK</button>
-        <button class="action-btn outline" id="btn-share-native">+ SHARE LINK</button>
-        <p class="share-hint">Teile den Link mit deiner Gruppe. Wenn alle abgestimmt haben, klicke auf "> VOTING STARTEN".</p>
+        <!-- Participant counter -->
+        <div class="participant-counter">
+          <span class="participant-dot"></span>
+          <span id="participant-count-text">Waiting for participants…</span>
+        </div>
+        <button class="action-btn" id="btn-copy-share">+ Copy Link</button>
+        <button class="action-btn outline" id="btn-share-native">+ Share Link</button>
+        <p class="share-hint">Share the link. Once everyone is ready, click "Start Voting →" to begin the countdown simultaneously for all.</p>
       </div>
     </div>
 
-    <!-- ── HOST ── -->
+    <!-- HOST VOTING VIEW (votes coming in, can vote too, sees timer) -->
     <div id="view-host" class="view hidden">
-      <div class="host-top-bar">
+      <div class="host-strip">
         <span class="host-code-chip">Code: <strong id="host-code-chip"></strong></span>
-        <button class="chip-btn" id="host-copy-btn">🔗 Copy link</button>
+        <button class="chip-btn" id="host-copy-btn">Copy link</button>
+        <span class="participant-mini" id="host-participant-mini"></span>
       </div>
-      <div class="vote-layout">
-        <div class="lbox">
-          <span class="lbox-tab">QUESTION</span>
-          <p class="lbox-text" id="host-question-text"></p>
+      <div class="vote-page">
+        <!-- Synced countdown (same as participant) -->
+        <div class="timer-bar" id="host-timer-bar">
+          <div class="timer-bar-fill" id="host-timer-fill"></div>
+          <span class="timer-bar-text" id="host-timer-text">2:00</span>
         </div>
-        <div class="lbox">
-          <span class="lbox-tab">VOTING OPTIONS</span>
-          <p class="info-line" id="host-info-line">INFO: JUST A SINGLE CHOICE</p>
-          <div id="host-opts-list"></div>
-          <div class="timer-section">
-            <div class="timer-display" id="host-timer">02:00</div>
-            <div class="timer-btns">
-              <button class="timer-ctrl-btn" id="btn-pause-timer" onclick="toggleTimer()">⏸ PAUSE</button>
-            </div>
-          </div>
-          <p class="total-info">Total votes: <strong id="host-total">0</strong></p>
-        </div>
+        <p class="vote-section-head">Question</p>
+        <p class="vote-question" id="host-question-text"></p>
+        <p class="info-banner" id="host-info-line">Just a single choice</p>
+        <div id="host-opts-list"></div>
+        <p class="total-count">Total votes: <strong id="host-total">0</strong></p>
       </div>
     </div>
 
-    <!-- ── VOTE ── -->
+    <!-- VOTE (Participant) -->
     <div id="view-vote" class="view hidden">
-      <div class="vote-layout">
-        <div class="lbox">
-          <span class="lbox-tab">QUESTION</span>
-          <p class="lbox-text" id="vote-question-text"></p>
+      <div class="vote-page">
+        <!-- Synced countdown timer (same data as host) -->
+        <div class="timer-bar hidden" id="vote-timer-bar">
+          <div class="timer-bar-fill" id="vote-timer-fill"></div>
+          <span class="timer-bar-text" id="vote-timer-text">2:00</span>
         </div>
-        <div class="lbox">
-          <span class="lbox-tab">VOTING OPTIONS</span>
-          <p class="info-line" id="vote-info-line">INFO: JUST A SINGLE CHOICE</p>
-          <div id="vote-opts-list"></div>
-          <div id="vote-success-box" class="success-box hidden">
-            <div class="success-check">✓</div>
-            <p>Vote submitted!</p>
-            <p class="success-sub">Waiting for results…</p>
-            <div id="vote-token-wrap" class="hidden token-wrap">
-              <p class="token-hint">📸 Show this QR code to the host:</p>
-              <canvas id="vote-token-canvas"></canvas>
-            </div>
+        <!-- LOBBY: waiting for host to start -->
+        <div id="vote-lobby-box" class="status-box hidden">
+          <div class="status-check" style="font-size:22px">◎</div>
+          <h3>You're in!</h3>
+          <p class="status-waiting">Waiting for the host to start the vote…</p>
+        </div>
+        <p class="vote-section-head" id="vote-q-head" style="display:none">Question</p>
+        <p class="vote-question" id="vote-question-text"></p>
+        <p class="info-banner" id="vote-info-line" style="display:none">Just a single choice</p>
+        <div id="vote-opts-list"></div>
+        <!-- Voted state -->
+        <div id="vote-success-box" class="status-box hidden">
+          <div class="status-check">✓</div>
+          <h3>Vote submitted!</h3>
+          <p class="status-waiting">Waiting for results…</p>
+          <div id="vote-token-wrap" class="hidden" style="margin-top:16px">
+            <p class="token-hint">Show this QR code to the host:</p>
+            <canvas id="vote-token-canvas"></canvas>
           </div>
-          <div id="vote-closed-box" class="closed-box hidden">
-            <div class="closed-icon">🔒</div>
-            <p>Voting closed!</p>
-            <p class="success-sub">Results coming soon…</p>
-          </div>
+        </div>
+        <!-- Voting closed -->
+        <div id="vote-closed-box" class="status-box hidden">
+          <div class="status-check" style="font-size:22px">◎</div>
+          <h3>Voting closed!</h3>
+          <p>The host is spinning the wheel…</p>
         </div>
       </div>
     </div>
 
-    <!-- ── SPIN WHEEL ── -->
+    <!-- SPIN / RESULTS -->
     <div id="view-spin" class="view hidden">
       <div id="stars-container" class="stars-container" aria-hidden="true"></div>
       <div class="results-layout">
         <div class="results-left">
-          <div class="lbox">
-            <span class="lbox-tab">QUESTION</span>
-            <p class="lbox-text" id="spin-question-text"></p>
-          </div>
-          <div class="lbox">
-            <span class="lbox-tab">RESULTS</span>
-            <div id="spin-options-pct"></div>
-          </div>
+          <p class="vote-section-head" style="margin-top:20px">Question</p>
+          <p class="vote-question" id="spin-question-text"></p>
+          <p class="vote-section-head" style="font-size:10px;padding:12px 0 8px">Results</p>
+          <div id="spin-options-pct"></div>
         </div>
         <div class="results-right">
           <div class="wheel-stage" id="wheel-stage">
             <div class="pointer-top">
-              <svg viewBox="0 0 60 54" width="60" height="54">
-                <polygon points="30,50 4,4 56,4"
-                  fill="white" stroke="black" stroke-width="4" stroke-linejoin="round"/>
+              <svg viewBox="0 0 60 54" width="56" height="50">
+                <polygon points="30,50 4,4 56,4" fill="white" stroke="black" stroke-width="3" stroke-linejoin="round"/>
               </svg>
             </div>
             <canvas id="spin-wheel-canvas" width="400" height="400"></canvas>
             <div id="winner-box" class="winner-box hidden"></div>
           </div>
+          <div id="participant-spin-overlay" class="spin-overlay hidden">
+            <div class="spin-indicator">◎</div>
+            <p>Host is spinning the wheel…</p>
+          </div>
           <div class="spin-btns" id="spin-btns">
-            <button class="spin-ctrl start" id="btn-spin-start" onclick="onSpinStart()">+ START</button>
-            <button class="spin-ctrl stop"  id="btn-spin-stop"  onclick="onSpinStop()" disabled>- STOP</button>
+            <button class="spin-ctrl start" id="btn-spin-start" onclick="onSpinStart()">+ Start</button>
+            <button class="spin-ctrl stop"  id="btn-spin-stop"  onclick="onSpinStop()" disabled>− Stop</button>
           </div>
         </div>
       </div>
@@ -222,35 +210,32 @@
 
   </main>
 
-  <!-- ═══ BOTTOM BAR ═══ -->
   <footer class="bottombar">
     <button class="nav-left"  id="nav-left"  onclick="onNavLeft()"></button>
     <button class="nav-right" id="nav-right" onclick="onNavRight()"></button>
   </footer>
 </div>
 
-<!-- MODAL: Code eingeben -->
+<!-- MODAL: Join -->
 <div id="modal-join" class="modal-bg hidden">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('join')">✕</button>
     <h3>Join Session</h3>
     <p>Enter the 6-digit code:</p>
-    <input class="lbox-input code-field" id="join-code-input" type="text"
-      placeholder="ABC123" maxlength="6" autocomplete="off">
-    <button class="action-btn" onclick="submitJoin()">JOIN →</button>
+    <input class="field-input code-field" id="join-code-input" type="text" placeholder="ABC123" maxlength="6" autocomplete="off">
+    <button class="action-btn" style="margin-top:8px" onclick="submitJoin()">Join →</button>
     <p class="error-msg" id="join-error"></p>
   </div>
 </div>
 
-<!-- MODAL: Vote-URL (No-DB) -->
+<!-- MODAL: Collect Vote (No-DB) -->
 <div id="modal-collect" class="modal-bg hidden">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('collect')">✕</button>
     <h3>Collect Vote</h3>
     <p>Paste vote URL:</p>
-    <textarea class="lbox-input" id="collect-url" rows="3"
-      placeholder="https://…?addvote=1&d=…" style="resize:vertical"></textarea>
-    <button class="action-btn" onclick="processCollectUrl()">✓ COLLECT VOTE</button>
+    <textarea class="field-input" id="collect-url" rows="3" placeholder="https://…?addvote=1&d=…" style="resize:vertical;border:1px solid #000;padding:8px"></textarea>
+    <button class="action-btn" style="margin-top:8px" onclick="processCollectUrl()">✓ Collect Vote</button>
     <p class="error-msg" id="collect-error"></p>
     <p class="collect-ok hidden" id="collect-ok">✓ Vote collected!</p>
   </div>
@@ -261,19 +246,18 @@
   <div class="modal-box modal-screenshot-box">
     <button class="modal-close" onclick="closeModal('screenshot')">✕</button>
     <h3>Share Results</h3>
-    <div class="screenshot-preview-wrap">
+    <div class="screenshot-preview-wrap" id="screenshot-preview-wrap">
       <canvas id="screenshot-canvas"></canvas>
     </div>
     <div class="screenshot-btns">
-      <button class="action-btn" onclick="downloadScreenshot()">⬇ DOWNLOAD PNG</button>
-      <button class="action-btn outline" onclick="shareScreenshot()">SHARE</button>
+      <button class="action-btn" onclick="downloadScreenshot()">↓ Download PNG</button>
+      <button class="action-btn outline" onclick="shareScreenshot()">Share</button>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="config.js"></script>
 <script src="db.js"></script>
 <script src="wheel.js"></script>
