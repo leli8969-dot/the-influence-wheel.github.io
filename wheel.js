@@ -1,62 +1,44 @@
 /* ════════════════════════════════════════════════════════
-   wheel.js – Glücksrad (FLAT DESIGN)
-
-   Design:
-   • KEIN Stroke zwischen Segmenten (flat)
-   • KEIN Center-Kreis
-   • Pointer: weißes SVG-Dreieck mit 4px schwarzem Stroke
-   • Gewinner-Erkennung aus tatsächlicher Position
+   wheel.js – Lucky Wheel (Flat Design, No Letters)
+   Landing page: yellow minimal palette, fan-out on hover
+   Voting wheel: colorful per-option segments
    ════════════════════════════════════════════════════════ */
 
 const OPT_COLORS = [
-  '#FF85C8', // Pink
-  '#ADFF70', // Lime
-  '#8FD4F5', // Sky Blue
-  '#FFD35C', // Gold
-  '#90EE90', // Pale Green
-  '#FF7070', // Coral
-  '#C58BF2', // Lavender
-  '#FFB347', // Peach
+  '#FF85C8','#ADFF70','#8FD4F5','#FFD35C',
+  '#90EE90','#FF7070','#C58BF2','#FFB347',
 ];
 
 class InfluenceWheel {
   constructor(canvas, opts = {}) {
-    this.canvas     = canvas;
-    this.ctx        = canvas.getContext('2d');
-    this.rotation   = 0;
-    this.segments   = [];
-    this.spinning   = false;
-    this.velocity   = 0;
-    this.idleAnim   = null;
-    this.spinAnim   = null;
-    this.showLabels = opts.showLabels ?? false;
+    this.canvas   = canvas;
+    this.ctx      = canvas.getContext('2d');
+    this.rotation = 0;
+    this.segments = [];
+    this.spinning = false;
+    this.velocity = 0;
+    this.idleAnim = null;
+    this.spinAnim = null;
   }
 
   setData(options, votes) {
     const total = votes.reduce((a, b) => a + b, 0);
     const equal = (Math.PI * 2) / options.length;
     this.segments = options.map((label, i) => ({
-      label,
-      votes: votes[i] || 0,
+      label, votes: votes[i] || 0,
       arc:   total > 0 ? ((votes[i] || 0) / total) * Math.PI * 2 : equal,
       color: OPT_COLORS[i % OPT_COLORS.length],
     }));
   }
 
-  /* ── Zeichnen: FLAT – kein Stroke, kein Center-Kreis ── */
+  // ── Draw – flat, no strokes, no center circle ────────
   draw() {
     const { ctx, canvas, rotation, segments } = this;
     if (!segments.length) return;
-
-    const cx = canvas.width  / 2;
-    const cy = canvas.height / 2;
+    const cx = canvas.width / 2, cy = canvas.height / 2;
     const r  = Math.min(cx, cy) - 2;
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Pointer oben → Segmente starten bei -π/2 + rotation
     let angle = rotation - Math.PI / 2;
-
     segments.forEach(seg => {
       ctx.beginPath();
       ctx.moveTo(cx, cy);
@@ -64,90 +46,42 @@ class InfluenceWheel {
       ctx.closePath();
       ctx.fillStyle = seg.color;
       ctx.fill();
-      // ← KEIN ctx.stroke() → Flat Design
-
-      // Optionale Labels
-      if (this.showLabels && seg.label) {
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(angle + seg.arc / 2);
-        ctx.textAlign  = 'right';
-        ctx.fillStyle  = 'rgba(0,0,0,0.6)';
-        ctx.font       = `bold ${r > 150 ? 16 : 12}px Inter, sans-serif`;
-        const txt      = seg.label.length > 12 ? seg.label.slice(0, 11) + '…' : seg.label;
-        ctx.fillText(txt, r - 16, 6);
-        ctx.restore();
-      }
-
       angle += seg.arc;
     });
-    // ← KEIN Center-Kreis → Flat Design
   }
 
-  /* ── Idle-Rotation (sanft) ───────────────────────────── */
-  startIdle() {
-    const tick = () => {
-      if (this.spinning) return;
-      this.rotation += 0.004;
-      this.draw();
-      this.idleAnim = requestAnimationFrame(tick);
-    };
-    this.idleAnim = requestAnimationFrame(tick);
-  }
-  stopIdle() { cancelAnimationFrame(this.idleAnim); }
-
-  /* ══ START – frei und schnell drehen ════════════════════ */
   startFastSpin() {
     if (this.spinning) return;
-    this.spinning = true;
-    this.velocity = 0.18; // rad/Frame
-
+    this.spinning = true; this.velocity = 0.18;
     const tick = () => {
       if (!this.spinning) return;
-      this.rotation += this.velocity;
-      this.draw();
+      this.rotation += this.velocity; this.draw();
       this.spinAnim = requestAnimationFrame(tick);
     };
     this.spinAnim = requestAnimationFrame(tick);
   }
 
-  /* ══ STOP – abbremsen, dann Gewinner bestimmen ══════════
-     callback(winnerIndex) wird nach dem Abbremsen aufgerufen
-  ════════════════════════════════════════════════════════ */
   stopAndDetect(onComplete) {
     if (!this.spinning) return;
-    this.spinning = false;
-    cancelAnimationFrame(this.spinAnim);
-
-    const startRot  = this.rotation;
-    const extraRot  = (1.5 + Math.random() * 2.5) * Math.PI * 2;
-    const targetRot = startRot + extraRot;
-    const duration  = 2800 + Math.random() * 1400;
+    this.spinning = false; cancelAnimationFrame(this.spinAnim);
+    const startRot = this.rotation;
+    const extraRot = (1.5 + Math.random() * 2.5) * Math.PI * 2;
+    const duration = 2800 + Math.random() * 1400;
     const startTime = performance.now();
-
     const decel = (now) => {
-      const t      = Math.min((now - startTime) / duration, 1);
-      const eased  = 1 - Math.pow(1 - t, 4); // easeOutQuart
-      this.rotation = startRot + extraRot * eased;
+      const t = Math.min((now - startTime) / duration, 1);
+      this.rotation = startRot + extraRot * (1 - Math.pow(1 - t, 4));
       this.draw();
-
-      if (t < 1) {
-        this.spinAnim = requestAnimationFrame(decel);
-      } else {
-        if (onComplete) onComplete(this.detectWinner());
-      }
+      if (t < 1) this.spinAnim = requestAnimationFrame(decel);
+      else if (onComplete) onComplete(this.detectWinner());
     };
     this.spinAnim = requestAnimationFrame(decel);
   }
 
-  /* ══ Gewinner aus aktueller Rotation bestimmen ══════════
-     Mathematik: Pointer oben → norm = (-rotation) mod 2π
-  ════════════════════════════════════════════════════════ */
   detectWinner() {
     if (!this.segments.length) return 0;
     const TWO_PI = Math.PI * 2;
     const norm   = ((-this.rotation) % TWO_PI + TWO_PI) % TWO_PI;
-
     let cum = 0;
     for (let i = 0; i < this.segments.length; i++) {
       if (norm >= cum && norm < cum + this.segments[i].arc) return i;
@@ -156,18 +90,114 @@ class InfluenceWheel {
     return this.segments.length - 1;
   }
 
-  pickWinner() {
-    const total = this.segments.reduce((s, seg) => s + seg.arc, 0);
-    let rand = Math.random() * total;
-    for (let i = 0; i < this.segments.length; i++) {
-      rand -= this.segments[i].arc;
-      if (rand <= 0) return i;
-    }
-    return this.segments.length - 1;
-  }
-
   stopFastSpin() {
     this.spinning = false;
     cancelAnimationFrame(this.spinAnim);
   }
+
+  spinToWinner(winnerIdx) {
+    return new Promise(resolve => {
+      if (!this.segments.length) return resolve(winnerIdx);
+      this.spinning = false; cancelAnimationFrame(this.spinAnim);
+      const TWO_PI   = Math.PI * 2;
+      const startRot = this.rotation;
+      let cum = 0;
+      for (let i = 0; i < winnerIdx; i++) cum += this.segments[i].arc;
+      const winnerMid = cum + this.segments[winnerIdx].arc / 2;
+      const extraSpins  = (4 + Math.random() * 3) * TWO_PI;
+      const normalised  = ((-winnerMid - startRot) % TWO_PI + TWO_PI) % TWO_PI;
+      const targetRot   = startRot + normalised + extraSpins;
+      const duration    = 4000 + Math.random() * 1200;
+      const startTime   = performance.now();
+      this.spinning     = true;
+      const animate = (now) => {
+        const t      = Math.min((now - startTime) / duration, 1);
+        this.rotation = startRot + (targetRot - startRot) * (1 - Math.pow(1 - t, 4));
+        this.draw();
+        if (t < 1) this.spinAnim = requestAnimationFrame(animate);
+        else { this.spinning = false; resolve(winnerIdx); }
+      };
+      this.spinAnim = requestAnimationFrame(animate);
+    });
+  }
 }
+
+/* ════════════════════════════════════════════════════════
+   Landing Page Wheel
+   Minimalist, yellow palette, NO letters
+   Fan-out + rotation on hover
+   ════════════════════════════════════════════════════════ */
+function initLandingWheel() {
+  const canvas = document.getElementById('landing-wheel-canvas');
+  if (!canvas) return;
+  const ctx  = canvas.getContext('2d');
+  const SIZE = canvas.width, CX = SIZE/2, CY = SIZE/2;
+  const R    = SIZE/2 - 35;
+
+  // Yellow tones – minimalist, no letters
+  const SEGS = [
+    { arc: 1.45, color: '#FFF500' },
+    { arc: 0.50, color: '#FFF500' },
+    { arc: 1.18, color: '#FFF500' },
+    { arc: 0.30, color: '#FFF500' },
+    { arc: 1.20, color: '#FFF500' },
+    { arc: 0.88, color: '#FFF500' },
+    { arc: 0.77, color: '#FFF500' },
+  ];
+
+  let rotation = -0.5, explode = 0, rotSpeed = 0;
+  let hovering = false, animId = null;
+
+  function draw(rot, exp) {
+    ctx.clearRect(0, 0, SIZE, SIZE);
+    let angle = rot;
+    SEGS.forEach(seg => {
+      const mid = angle + seg.arc / 2;
+      const ox  = Math.cos(mid) * exp;
+      const oy  = Math.sin(mid) * exp;
+      ctx.beginPath();
+      ctx.moveTo(CX + ox, CY + oy);
+      ctx.arc(CX + ox, CY + oy, R, angle, angle + seg.arc);
+      ctx.closePath();
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+      // Thin 1px black divider between segments
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+      // ← hier keine stroke-Zeilen mehr
+      angle += seg.arc;
+    });
+  }
+
+  function tick() {
+    rotSpeed = hovering
+      ? Math.min(rotSpeed + 0.0003, 0.009)
+      : rotSpeed * 0.93;
+    rotation += rotSpeed;
+    const et = hovering ? 20 : 0;
+    explode  += (et - explode) * 0.1;
+    draw(rotation, explode);
+    const active = hovering || Math.abs(rotSpeed) > 0.0003 || Math.abs(et - explode) > 0.3;
+    animId = active ? requestAnimationFrame(tick) : null;
+  }
+
+  draw(rotation, 0);
+
+  const wrapper = document.getElementById('home-logo-col');
+  const rows    = document.querySelectorAll('#home-bubbles .home-text-row');
+
+  wrapper.addEventListener('mouseenter', () => {
+    hovering = true;
+    rows.forEach((r, i) => {
+      r.style.transition = 'transform .4s ease';
+      r.style.transform  = `translateX(${i % 2 === 0 ? 8 : -6}px)`;
+    });
+    if (!animId) animId = requestAnimationFrame(tick);
+  });
+  wrapper.addEventListener('mouseleave', () => {
+    hovering = false;
+    rows.forEach(r => { r.style.transition = 'transform .5s ease'; r.style.transform = ''; });
+    if (!animId) animId = requestAnimationFrame(tick);
+  });
+}
+const initLandingHover = initLandingWheel;
