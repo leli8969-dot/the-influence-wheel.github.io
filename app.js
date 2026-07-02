@@ -207,10 +207,16 @@ function renderShareView() {
   updateParticipantUI(0);
   const sub = db.subscribeParticipants(poll.id, count => updateParticipantUI(count));
   S.subs.push(sub);
-  // Initial count
-  db.getParticipantCount(poll.id).then(n => updateParticipantUI(n));
-}
+    // Initial count
+db.getParticipantCount(poll.id).then(n => updateParticipantUI(n));
 
+// Fallback: alle 3 Sekunden neu abfragen
+const pollInterval = setInterval(async () => {
+  const n = await db.getParticipantCount(poll.id);
+  updateParticipantUI(n);
+}, 3000);
+S.subs.push({ unsubscribe: () => clearInterval(pollInterval) });
+   
 function updateParticipantUI(count) {
   const dot  = document.querySelector('.participant-dot');
   const text = document.getElementById('participant-count-text');
