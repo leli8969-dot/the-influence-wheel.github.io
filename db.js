@@ -117,22 +117,19 @@ class InfluenceDB {
   }
 
   // ── Participant tracking ──────────────────────────────
-  async participantJoin(pollId) {
-    const sessionId = this.getSessionId();
-    if (this.isLive) {
-      await this.sb.from('participants').upsert(
-        { poll_id: pollId, session_id: sessionId },
-        { onConflict: 'poll_id,session_id' }
-      ).catch(() => {});
+async participantJoin(pollId) {
+  const sessionId = this.getSessionId();
+  if (this.isLive) {
+    const { error } = await this.sb
+      .from('participants')
+      .insert({ poll_id: pollId, session_id: sessionId });
+    // Fehler ignorieren wenn schon eingetragen (duplicate)
+    if (error && error.code !== '23505') {
+      console.error('participantJoin error:', error);
     } else {
-      // Demo: track locally (simulated)
-      const key  = `iw_participants_${pollId}`;
-      const list = JSON.parse(localStorage.getItem(key) || '[]');
-      if (!list.includes(sessionId)) {
-        list.push(sessionId);
-        localStorage.setItem(key, JSON.stringify(list));
-      }
+      console.log('✅ Participant joined:', pollId);
     }
+  }
   }
 
   async getParticipantCount(pollId) {
