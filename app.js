@@ -210,13 +210,19 @@ function renderShareView() {
   // Initial count
   db.getParticipantCount(poll.id).then(n => updateParticipantUI(n));
 
-  // Fallback: alle 3 Sekunden neu abfragen
+  // Poll every 2 seconds for participant count
   const pollInterval = setInterval(async () => {
-    const n = await db.getParticipantCount(poll.id);
-    updateParticipantUI(n);
-  }, 3000);
+    try {
+      const n = await db.getParticipantCount(poll.id);
+      console.log('👥 Participant count:', n);
+      updateParticipantUI(n);
+    } catch(e) {
+      console.error('Count error:', e);
+    }
+  }, 2000);
   S.subs.push({ unsubscribe: () => clearInterval(pollInterval) });
 }
+
 function updateParticipantUI(count) {
   const dot  = document.querySelector('.participant-dot');
   const text = document.getElementById('participant-count-text');
@@ -378,7 +384,12 @@ async function enterVote(pollId) {
   if (!poll) { alert('Session not found.'); showView('home'); return; }
 
   // Register participant presence
-  await db.participantJoin(pollId).catch(()=>{});
+  try {
+    await db.participantJoin(pollId);
+    console.log('✅ Participant joined poll:', pollId);
+  } catch(e) {
+    console.error('❌ participantJoin error:', e);
+  }
 
   if (poll.status==='done')    { await showWinnerFromPoll(poll); return; }
   if (poll.status==='spinning') {
@@ -954,3 +965,4 @@ function cleanupSubs() {
   S.subs=[]; db.cleanup();
   S.spinWheel?.stopFastSpin?.();
 }
+
