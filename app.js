@@ -211,15 +211,16 @@ function renderShareView() {
   db.getParticipantCount(poll.id).then(n => updateParticipantUI(n));
 
   // Poll every 2 seconds for participant count
-  const pollInterval = setInterval(async () => {
-    try {
-      const n = await db.getParticipantCount(poll.id);
-      console.log('👥 Participant count:', n);
-      updateParticipantUI(n);
-    } catch(e) {
-      console.error('Count error:', e);
-    }
-  }, 2000);
+const pollInterval = setInterval(async () => {
+  try {
+    if (!S.poll) return;
+    const n = await db.getParticipantCount(S.poll.id);
+    console.log('👥 Participant count:', n);
+    updateParticipantUI(n);
+  } catch(e) {
+    console.error('Count error:', e);
+  }
+}, 2000);
   S.subs.push({ unsubscribe: () => clearInterval(pollInterval) });
 }
 
